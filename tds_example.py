@@ -36,36 +36,31 @@ my_model.subdomains = [
 # -------- Hydrogen species and reactions --------- #
 
 mobile_H = F.Species("H")
-trapped_H1 = F.Species("trapped_H1", mobile=False)
-empty_trap1 = F.ImplicitSpecies(
-    n=1.3e-3 * w_atom_density, others=[trapped_H1], name="empty_trap1"
-)
-trapped_H2 = F.Species("trapped_H2", mobile=False)
-empty_trap2 = F.ImplicitSpecies(
-    n=4e-3 * w_atom_density, others=[trapped_H2], name="empty_trap2"
-)
-my_model.species = [mobile_H, trapped_H1, trapped_H2]
 
-my_model.reactions = [
-    F.Reaction(
-        k_0=4.1e-7 / (1.1e-10**2 * 6 * w_atom_density),
-        E_k=0.39,
-        p_0=1e13,
-        E_p=0.87,
-        reactant1=mobile_H,
-        reactant2=empty_trap1,
-        product=trapped_H1,
-    ),
-    F.Reaction(
-        k_0=4.1e-7 / (1.1e-10**2 * 6 * w_atom_density),
-        E_k=0.39,
-        p_0=1e13,
-        E_p=1.0,
-        reactant1=mobile_H,
-        reactant2=empty_trap2,
-        product=trapped_H2,
-    ),
-]
+trap1 = F.Trap(
+    k_0=4.1e-7 / (1.1e-10**2 * 6 * w_atom_density),
+    E_k=0.39,
+    p_0=1e13,
+    E_p=0.87,
+    total_density=1.3e-3 * w_atom_density,
+    mobile_species=mobile_H,
+    subdomain=my_subdomain,  # not used atm
+    name="trap1",
+)
+
+trap2 = F.Trap(
+    k_0=4.1e-7 / (1.1e-10**2 * 6 * w_atom_density),
+    E_k=0.39,
+    p_0=1e13,
+    E_p=1.0,
+    total_density=4e-3 * w_atom_density,
+    mobile_species=mobile_H,
+    subdomain=my_subdomain,  # not used atm
+    name="trap2",
+)
+my_model.species = [mobile_H]
+
+my_model.traps = [trap1, trap2]
 
 # -------- Temperature --------- #
 
@@ -110,8 +105,8 @@ my_model.exports = [
     # F.VTXExport("mobile_concentration_h.bp", field=mobile_H),
     # F.VTXExport("trapped_concentration_h.bp", field=trapped_H1),
     F.XDMFExport("mobile_concentration_h.xdmf", field=mobile_H),
-    F.XDMFExport("trapped_concentration_h1.xdmf", field=trapped_H1),
-    F.XDMFExport("trapped_concentration_h2.xdmf", field=trapped_H2),
+    F.XDMFExport("trapped_concentration_h1.xdmf", field=trap1.trapped_species),
+    F.XDMFExport("trapped_concentration_h2.xdmf", field=trap2.trapped_species),
     left_flux,
     right_flux,
 ]

@@ -43,3 +43,4 @@ from .exports.vtx import VTXExport
 from .exports.xdmf import XDMFExport
 
 from .reaction import Reaction
+from .trap import Trap

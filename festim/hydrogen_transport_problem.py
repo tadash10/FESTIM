@@ -86,6 +86,7 @@ class HydrogenTransportProblem:
         mesh=None,
         subdomains=[],
         species=[],
+        traps=[],
         reactions=[],
         temperature=None,
         sources=[],
@@ -96,6 +97,7 @@ class HydrogenTransportProblem:
         self.mesh = mesh
         self.subdomains = subdomains
         self.species = species
+        self.traps = traps
         self.reactions = reactions
         self.temperature = temperature
         self.sources = sources
@@ -177,6 +179,7 @@ class HydrogenTransportProblem:
         self._species = value
 
     def initialise(self):
+        self.unpack_traps()
         self.define_function_spaces()
         self.define_markers_and_measures()
         self.assign_functions_to_species()
@@ -189,6 +192,12 @@ class HydrogenTransportProblem:
         self.create_formulation()
         self.create_solver()
         self.initialise_exports()
+
+    def unpack_traps(self):
+        """Unpacks the traps into species and reactions"""
+        for trap in self.traps:
+            self.species.append(trap.trapped_species)
+            self.reactions.append(trap.reaction)
 
     def define_temperature(self):
         """Sets the value of temperature_fenics_value. The type depends on
